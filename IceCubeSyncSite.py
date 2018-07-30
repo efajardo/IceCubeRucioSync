@@ -20,6 +20,7 @@ from rucio.common.exception import DataIdentifierAlreadyExists
 from rucio.common.exception import RucioException
 from rucio.common.exception import FileAlreadyExists
 from rucio.common.exception import DuplicateRule
+from rucio.common.exception import InvalidObject
 from rucio.client import RuleClient
 
 import gfal2
@@ -88,7 +89,7 @@ class RunSync(object):
 
     def get_files_metadata(self):
         for f in self.run_files:
-            if self.run + '/' + f not in self.existent_replica_files:
+             if self.run + '/' + f not in self.existent_replica_files:
                 self.obtain_metadata(f)
         print("Metadat initialization done")
 
@@ -194,7 +195,7 @@ class RunSync(object):
         """
         Registering the container
         """
-        print("Registering the container %s" % container)
+        print("Registering the container %s with scope: %s" % (container,self.scope))
         if self.dry_run:
              print ('Dry run only, not registering the container')
              return
@@ -202,6 +203,8 @@ class RunSync(object):
             self.didc.add_container(scope=self.scope, name=container, lifetime=self.lifetime)
         except DataIdentifierAlreadyExists:
             print("Container %s already exists" % container)
+        except InvalidObject:
+            print("Problem with container name: %s" % container)
     
     def attach_dataset_to_container(self, dataset, container):
         """
@@ -242,14 +245,18 @@ class RunSync(object):
         if self.dry_run:
             print(' Dry run only. Not registering files.')
             return
-        self.repc.add_replicas(rse=self.originrse, files=[{
+        try:
+            self.repc.add_replicas(rse=self.originrse, files=[{
                 'scope': self.scope,
                 'name': replicas[filemd]['name'],
                 'adler32': replicas[filemd]['adler32'],
                 'bytes': replicas[filemd]['size'],
                } for filemd in replicas])
-        #print(replicas)
-        print("Adding files to dataset: %s" % self.run_Number)
+            print("Adding files to dataset: %s" % self.run_Number)
+        except InvalidObject:
+            print("Problem with file name does not match pattern")
+            
+            
         for filemd in replicas:
             try:
                 self.didc.attach_dids(scope=self.scope, name=self.run_Number, dids=[{         
