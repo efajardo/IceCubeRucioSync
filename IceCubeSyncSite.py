@@ -196,6 +196,9 @@ class RunSync(object):
         Registering the container
         """
         print("Registering the container %s with scope: %s" % (container,self.scope))
+        if container is None:
+            print ('No container added, not registering any container')
+            return
         if self.dry_run:
              print ('Dry run only, not registering the container')
              return
