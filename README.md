@@ -6,6 +6,7 @@ To use the script you need:
 
 1. A valid proxy with an IceCube VOMS extension
 1. And the rucio client configuration pointing at $RUCIO_HOME/etc/rucio.cfg
+1. gfal-griftp package installed `yum install gfal2-plugin-gridftp`
 
 The script have several modes of operation see --help for details
 
