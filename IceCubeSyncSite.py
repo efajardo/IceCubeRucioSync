@@ -214,6 +214,9 @@ class RunSync(object):
         Attaching the dataset to a container
         """
         print("Attaching dataset %s, to container: %s" % (dataset, container))
+        if container is None:
+            print ('No container added, not registering dataset in container')
+            return
         if self.dry_run:
             print ('Dry run only, not attaching dataset container')
             return
